@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Jeopardy 4 O'yinchi</title>
+  <style>
+    body {
+      font-family: Arial;
+      text-align: center;
+      background: #111;
+      color: white;
+    }
+
+    table {
+      margin: auto;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      width: 120px;
+      height: 70px;
+      border: 2px solid white;
+      cursor: pointer;
+    }
+
+    th { background: darkred; }
+    td { background: blue; }
+    td:hover { background: darkblue; }
+
+    .players {
+      margin: 20px;
+      font-size: 18px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>🎮 Jeopardy 4 O'yinchi</h1>
+
+<div class="players">
+  🟢 P1: <span id="p1">0</span> |
+  🔵 P2: <span id="p2">0</span> |
+  🟡 P3: <span id="p3">0</span> |
+  🔴 P4: <span id="p4">0</span>
+</div>
+
+<table id="board"></table>
+
+<script>
+
+let scores = [0,0,0,0];
+let currentPlayer = 0;
+
+const categories = ["Math", "Tarix", "Geografiya"];
+
+const questions = [
+  [
+    {q:"2+2?", a:"4"},
+    {q:"5×5?", a:"25"},
+    {q:"10-3?", a:"7"},
+    {q:"12/4?", a:"3"},
+    {q:"9+1?", a:"10"}
+  ],
+  [
+    {q:"O'zbekiston poytaxti?", a:"toshkent"},
+    {q:"1945 yil nima?", a:"urush tugagan"},
+    {q:"Amir Temur kim?", a:"sarkarda"},
+    {q:"1991 yil?", a:"mustaqillik"},
+    {q:"Prezident?", a:"karimov"}
+  ],
+  [
+    {q:"Eng katta okean?", a:"tinch"},
+    {q:"Eng katta qit'a?", a:"osiyo"},
+    {q:"Eng uzun daryo?", a:"nil"},
+    {q:"Eng sovuq materik?", a:"antarktida"},
+    {q:"Qit'alar soni?", a:"7"}
+  ]
+];
+
+const points = [100,200,300,400,500];
+
+function updateScore(){
+  document.getElementById("p1").innerText = scores[0];
+  document.getElementById("p2").innerText = scores[1];
+  document.getElementById("p3").innerText = scores[2];
+  document.getElementById("p4").innerText = scores[3];
+}
+
+function createBoard(){
+  let table = document.getElementById("board");
+
+  let header = "<tr>";
+  for(let c of categories){
+    header += "<th>"+c+"</th>";
+  }
+  header += "</tr>";
+  table.innerHTML += header;
+
+  for(let i=0;i<5;i++){
+    let row = "<tr>";
+    for(let j=0;j<categories.length;j++){
+      row += `<td onclick="ask(${j},${i}, this)">${points[i]}</td>`;
+    }
+    row += "</tr>";
+    table.innerHTML += row;
+  }
+}
+
+function ask(cat, idx, cell){
+  let user = prompt("Player " + (currentPlayer+1) + " savol: " + questions[cat][idx].q);
+
+  if(user && user.toLowerCase() == questions[cat][idx].a){
+    alert("To'g'ri! Player " + (currentPlayer+1));
+    scores[currentPlayer] += points[idx];
+  } else {
+    alert("Noto'g'ri! Javob: " + questions[cat][idx].a);
+  }
+
+  cell.style.background = "gray";
+  cell.onclick = null;
+
+  currentPlayer = (currentPlayer + 1) % 4;
+  updateScore();
+}
+
+createBoard();
+updateScore();
+
+</script>
+
+</body>
+</html>
