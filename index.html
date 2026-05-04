@@ -1,14 +1,70 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Jeopardy Real</title>
+<title>Jeopardy FIXED</title>
+
 <style>
-body{font-family:Arial;text-align:center;background:#111;color:white;}
-table{margin:auto;border-collapse:collapse;}
-th,td{width:120px;height:60px;border:2px solid white;cursor:pointer;}
-th{background:darkred;} td{background:blue;}
-.option{margin:8px;padding:10px;background:#222;border:1px solid white;cursor:pointer;}
-#win{display:none;position:fixed;top:0;left:0;width:100%;height:100%;background:black;color:gold;font-size:40px;padding-top:200px;}
+body {
+  font-family: Arial;
+  text-align: center;
+  background: #111;
+  color: white;
+}
+
+table {
+  margin: auto;
+  border-collapse: collapse;
+}
+
+th, td {
+  width: 120px;
+  height: 60px;
+  border: 2px solid white;
+  cursor: pointer;
+}
+
+th { background: darkred; }
+td { background: blue; }
+
+.option {
+  margin: 10px;
+  padding: 12px;
+  background: #333;
+  color: white;
+  border: 2px solid white;
+  cursor: pointer;
+}
+
+.option:hover {
+  background: #555;
+}
+
+/* ✅ MUHIM FIX */
+.modal {
+  position: fixed;
+  top: 20%;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60%;
+  background: #222;
+  color: white;
+  padding: 20px;
+  border: 3px solid white;
+  z-index: 999;
+}
+
+#win {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: black;
+  color: gold;
+  font-size: 40px;
+  padding-top: 200px;
+}
 </style>
 </head>
 
@@ -23,54 +79,48 @@ P3:<span id="p3">0</span> |
 P4:<span id="p4">0</span>
 </div>
 
-<div style="width:300px;margin:auto;background:#333;height:20px;">
-<div id="bar" style="height:100%;width:100%;background:lime;"></div>
-</div>
-<h3>⏱ <span id="timer">40</span></h3>
-
 <table id="board"></table>
 <div id="win"></div>
 
 <script>
 
 let scores=[0,0,0,0],current=0,used=0;
-let time=40,interval=null,currentBox=null;
-let prizeCells=[];
+let currentBox=null;
 
 const categories=["Math","Tarix","Geo","English","Sport"];
 const points=[100,200,300,400,500,600,700,800];
 
-// 🎯 HAQIQIY 40 TA SAVOL
+// ❗ minimal savol (test uchun)
 const questions = [
 [
 {q:"2+2?",o:["3","4","5","6"],a:1},
-{q:"5×6?",o:["30","25","20","35"],a:0},
-{q:"10-4?",o:["5","6","7","8"],a:1},
-{q:"12/3?",o:["3","4","5","6"],a:1},
-{q:"9+8?",o:["16","17","18","19"],a:1},
-{q:"7×7?",o:["49","42","36","56"],a:0},
-{q:"15-5?",o:["5","10","15","20"],a:1},
-{q:"20/4?",o:["4","5","6","7"],a:1}
+{q:"5×5?",o:["20","25","30","15"],a:1},
+{q:"10-3?",o:["6","7","8","9"],a:1},
+{q:"12/4?",o:["2","3","4","6"],a:1},
+{q:"9+1?",o:["10","11","12","13"],a:0},
+{q:"6+6?",o:["10","12","14","16"],a:1},
+{q:"8×2?",o:["14","16","18","20"],a:1},
+{q:"20/5?",o:["2","3","4","5"],a:2}
 ],
 [
-{q:"O'zbekiston mustaqilligi?",o:["1990","1991","1992","1993"],a:1},
-{q:"Amir Temur?",o:["Shoir","Sarkarda","Olim","Artist"],a:1},
-{q:"1945?",o:["Urush tugadi","Boshlanish","Inqilob","Davlat"],a:0},
+{q:"Poytaxt?",o:["Toshkent","Buxoro","Xiva","Nukus"],a:0},
+{q:"1991?",o:["Mustaqillik","Urush","Inqilob","Davlat"],a:0},
+{q:"Temur?",o:["Sarkarda","Shoir","Olim","Artist"],a:0},
 {q:"Karimov?",o:["Prezident","Sportchi","Olim","Aktyor"],a:0},
-{q:"Poytaxt?",o:["Toshkent","Buxoro","Xiva","Andijon"],a:0},
-{q:"Temur tug‘ilgan?",o:["Shahrisabz","Xiva","Farg'ona","Nukus"],a:0},
-{q:"Bayroq rang?",o:["Ko'k","Qizil","Sariq","Qora"],a:0},
-{q:"O'zbekiston?",o:["Davlat","Shahar","Daryo","Tog"],a:0}
+{q:"1945?",o:["Urush tugadi","Boshlanish","Davlat","Tinchlik"],a:0},
+{q:"Bayroq?",o:["Ko'k","Qizil","Sariq","Qora"],a:0},
+{q:"O'zbekiston?",o:["Davlat","Shahar","Daryo","Tog"],a:0},
+{q:"Temur tug‘ilgan?",o:["Shahrisabz","Xiva","Nukus","Farg'ona"],a:0}
 ],
 [
 {q:"Eng katta okean?",o:["Tinch","Atlantika","Hind","Shimoliy"],a:0},
-{q:"Eng katta qit'a?",o:["Osiyo","Afrika","Yevropa","Avstraliya"],a:0},
-{q:"Nil nima?",o:["Daryo","Tog","Ko'l","Shahar"],a:0},
-{q:"Yer shakli?",o:["Dumaloq","Kvadrat","Tekis","Uchburchak"],a:0},
-{q:"Sovuq materik?",o:["Antarktida","Afrika","Osiyo","Yevropa"],a:0},
-{q:"Qit'a soni?",o:["5","6","7","8"],a:2},
-{q:"Yer nima?",o:["Planeta","Yulduz","Oy","Quyosh"],a:0},
-{q:"Eng uzun daryo?",o:["Nil","Amazon","Amu","Volga"],a:0}
+{q:"Qit'a?",o:["7","5","6","8"],a:0},
+{q:"Nil?",o:["Daryo","Ko'l","Tog","Shahar"],a:0},
+{q:"Yer?",o:["Planeta","Yulduz","Oy","Quyosh"],a:0},
+{q:"Sovuq?",o:["Antarktida","Afrika","Osiyo","Yevropa"],a:0},
+{q:"Dunyo?",o:["Planeta","Yulduz","Oy","Quyosh"],a:0},
+{q:"Qit'a soni?",o:["7","6","5","4"],a:0},
+{q:"Daryo?",o:["Nil","Amu","Sirdaryo","Volga"],a:0}
 ],
 [
 {q:"Hello?",o:["Salom","Xayr","Rahmat","Uzr"],a:0},
@@ -83,12 +133,12 @@ const questions = [
 {q:"Ice?",o:["Muz","Suv","Tosh","Olov"],a:0}
 ],
 [
-{q:"Futbolchilar?",o:["11","10","9","12"],a:0},
+{q:"Futbol?",o:["11","10","9","12"],a:0},
 {q:"Messi?",o:["Argentina","Braziliya","Fransiya","Italiya"],a:0},
 {q:"Ronaldo?",o:["Portugal","Ispaniya","Germaniya","Fransiya"],a:0},
 {q:"NBA?",o:["Basketbol","Futbol","Tennis","Hokkey"],a:0},
 {q:"Olimpiada?",o:["4 yil","2 yil","1 yil","5 yil"],a:0},
-{q:"Gepard?",o:["Eng tez","Sekin","Og'ir","Kichik"],a:0},
+{q:"Gepard?",o:["Tez","Sekin","Og'ir","Kichik"],a:0},
 {q:"Sport?",o:["Harakat","Uyqu","Ovqat","Kitob"],a:0},
 {q:"O'yin?",o:["Fun","Work","Sleep","Eat"],a:0}
 ]
@@ -96,89 +146,54 @@ const questions = [
 
 function createBoard(){
 let t=document.getElementById("board");
+
 let h="<tr>";
 categories.forEach(c=>h+="<th>"+c+"</th>");
-h+="</tr>"; t.innerHTML+=h;
-
-while(prizeCells.length<4){
-let r=Math.floor(Math.random()*40);
-if(!prizeCells.includes(r)) prizeCells.push(r);
-}
+h+="</tr>";
+t.innerHTML+=h;
 
 for(let i=0;i<8;i++){
 let r="<tr>";
 for(let j=0;j<5;j++){
-let index=i*5+j;
-r+=`<td onclick="openQ(${j},${i},this,${index})">${points[i]}</td>`;
+r+=`<td onclick="openQ(${j},${i},this)">${points[i]}</td>`;
 }
-r+="</tr>"; t.innerHTML+=r;
+r+="</tr>";
+t.innerHTML+=r;
 }
-}
-
-function startTimer(idx){
-clearInterval(interval);
-time=40;
-let t=document.getElementById("timer");
-let bar=document.getElementById("bar");
-
-interval=setInterval(()=>{
-time--; t.innerText=time;
-bar.style.width=(time/40*100)+"%";
-
-if(time<=0){
-clearInterval(interval);
-scores[current]-=points[idx];
-current=(current+1)%4;
-update();
-if(currentBox) document.body.removeChild(currentBox);
-used++; if(used===40) showWinner();
-}
-},1000);
 }
 
-function openQ(cat,idx,cell,index){
-
-if(prizeCells.includes(index)){
-let bonus=points[idx]*2;
-alert("🎁 BONUS! +" + bonus);
-scores[current]+=bonus;
-current=(current+1)%4;
-update();
-cell.style.background="gold";
-cell.innerText="🎁";
-cell.onclick=null;
-used++; if(used===40) showWinner();
-return;
-}
+function openQ(cat,idx,cell){
 
 let q=questions[cat][idx];
+
 let box=document.createElement("div");
+box.className="modal";
 currentBox=box;
 
-box.style="position:fixed;top:20%;left:30%;width:40%;background:#222;padding:20px;border:2px solid white;";
-box.innerHTML=`<h3>${q.q}</h3>`;
+box.innerHTML="<h2>"+q.q+"</h2>";
 
 q.o.forEach((opt,i)=>{
 let btn=document.createElement("div");
 btn.className="option";
-btn.innerText=String.fromCharCode(65+i)+") "+opt;
+btn.innerText=opt;
 
 btn.onclick=()=>{
-clearInterval(interval);
 if(i===q.a){scores[current]+=points[idx];}
 else{scores[current]-=points[idx];}
+
 current=(current+1)%4;
 update();
+
 cell.style.background="gray";
 cell.onclick=null;
+
 document.body.removeChild(box);
-used++; if(used===40) showWinner();
 };
+
 box.appendChild(btn);
 });
 
 document.body.appendChild(box);
-startTimer(idx);
 }
 
 function update(){
@@ -186,13 +201,6 @@ p1.innerText=scores[0];
 p2.innerText=scores[1];
 p3.innerText=scores[2];
 p4.innerText=scores[3];
-}
-
-function showWinner(){
-let max=Math.max(...scores);
-let w=scores.indexOf(max)+1;
-win.style.display="block";
-win.innerHTML="🏆 WINNER PLAYER "+w+"<br>Score: "+max;
 }
 
 createBoard();
