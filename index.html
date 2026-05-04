@@ -22,18 +22,18 @@ body{
 }
 
 .team{
-  padding:10px 15px;
+  padding:20px 30px;
   background:#222;
-  border:2px solid white;
-  border-radius:10px;
-  font-size:18px;
+  border:4px solid white;
+  border-radius:20px;
+  font-size:36px;
   transition:0.3s;
 }
 
 .active{
   background:green;
   transform:scale(1.1);
-  box-shadow:0 0 15px lime;
+  box-shadow:0 0 24px lime;
 }
 
 /* BOARD */
@@ -43,9 +43,9 @@ table{
 }
 
 th,td{
-  width:120px;
-  height:60px;
-  border:2px solid white;
+  width:240px;
+  height:120px;
+  border:4px solid white;
   cursor:pointer;
 }
 
@@ -60,14 +60,14 @@ td{background:blue;}
   transform:translateX(-50%);
   width:60%;
   background:#222;
-  padding:20px;
-  border:2px solid white;
+  padding:40px;
+  border:4px solid white;
   z-index:999;
 }
 
 .option{
-  margin:10px;
-  padding:10px;
+  margin:20px;
+  padding:20px;
   background:#333;
   border:1px solid white;
   cursor:pointer;
@@ -94,8 +94,8 @@ td{background:blue;}
   width:100%;height:100%;
   background:black;
   color:gold;
-  font-size:40px;
-  padding-top:200px;
+  font-size:80px;
+  padding-top:240px;
 }
 </style>
 </head>
@@ -313,10 +313,6 @@ function win(){
 let m=Math.max(...scores);
 let w=scores.indexOf(m)+1;
 
-win=document.getElementById("win");
-win.style.display="block";
-win.innerHTML="🏆 TEAM "+w+" WIN!";
-}
 
 board();
 update();
