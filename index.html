@@ -2,22 +2,14 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Jeopardy PRO</title>
+<title>JEOPARDY PRO FINAL</title>
 
 <style>
 body{background:#111;color:white;font-family:Arial;text-align:center;}
 
-.score{
-display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:10px;
-}
+.score{display:flex;justify-content:center;gap:10px;margin:10px;flex-wrap:wrap;}
 
-.team{
-padding:10px;
-border:2px solid white;
-border-radius:8px;
-}
-
-.active{background:green;}
+.team{padding:10px;border:2px solid white;border-radius:8px;}
 
 table{margin:auto;border-collapse:collapse;}
 
@@ -25,7 +17,6 @@ td,th{
 width:110px;height:60px;
 border:2px solid white;
 cursor:pointer;
-text-align:center;
 }
 
 th{background:red;}
@@ -39,6 +30,7 @@ background:#222;
 padding:20px;
 border:2px solid white;
 width:60%;
+z-index:999;
 }
 
 .option{
@@ -50,11 +42,19 @@ cursor:pointer;
 
 .option:hover{background:#555;}
 
-.bonus{background:gold !important;color:black !important;}
-
-input{
-width:60px;text-align:center;
+#bonusBox{
+display:none;
+position:fixed;
+top:50%;left:50%;
+transform:translate(-50%,-50%);
+background:gold;
+color:black;
+padding:30px;
+font-size:28px;
+border:3px solid white;
+z-index:9999;
 }
+input{width:60px;text-align:center;}
 </style>
 </head>
 
@@ -62,37 +62,93 @@ width:60px;text-align:center;
 
 <h2>🎮 JEOPARDY PRO FINAL</h2>
 
-<!-- SCORE -->
 <div class="score">
-<div class="team" id="t0">T1 <span id="s0">0</span> <input onchange="edit(0,this.value)"></div>
-<div class="team" id="t1">T2 <span id="s1">0</span> <input onchange="edit(1,this.value)"></div>
-<div class="team" id="t2">T3 <span id="s2">0</span> <input onchange="edit(2,this.value)"></div>
-<div class="team" id="t3">T4 <span id="s3">0</span> <input onchange="edit(3,this.value)"></div>
+<div>T1 <input onchange="edit(0,this.value)"></div>
+<div>T2 <input onchange="edit(1,this.value)"></div>
+<div>T3 <input onchange="edit(2,this.value)"></div>
+<div>T4 <input onchange="edit(3,this.value)"></div>
 </div>
 
 <table id="board"></table>
 
+<div id="bonusBox"></div>
+
 <script>
 
-let scores=[0,0,0,0];
+let pts=[100,200,300,400,500,600,700,800];
+let cats=["A","B","C","D","E"];
 let current=0;
-let doubleTurn=[false,false,false,false];
-
-const pts=[100,200,300,400,500,600,700,800];
-const cats=["A","B","C","D","E"];
 
 /* 40 SAVOL */
-const q=Array(5).fill(0).map(()=>Array(8).fill(0).map(()=>({
-q:"Savol?",
-o:["A","B","C","D"],
-a:1
-})));
+const q = [
+
+/* MATH */
+[
+{q:"2+2?",o:["3","4","5","6"],a:1},
+{q:"5×5?",o:["20","25","30","15"],a:1},
+{q:"10-3?",o:["6","7","8","9"],a:1},
+{q:"12/4?",o:["2","3","4","6"],a:1},
+{q:"9+1?",o:["10","11","12","13"],a:0},
+{q:"6+6?",o:["10","12","14","16"],a:1},
+{q:"8×2?",o:["14","16","18","20"],a:1},
+{q:"20/5?",o:["2","3","4","5"],a:2}
+],
+
+/* TARIX */
+[
+{q:"Poytaxt?",o:["Toshkent","Buxoro","Xiva","Nukus"],a:0},
+{q:"1991?",o:["Mustaqillik","Urush","Inqilob","Davlat"],a:0},
+{q:"Temur?",o:["Sarkarda","Shoir","Olim","Aktyor"],a:0},
+{q:"Karimov?",o:["Prezident","Sportchi","Olim","Artist"],a:0},
+{q:"1945?",o:["Urush","Boshlanish","Davlat","Tinchlik"],a:0},
+{q:"Bayroq?",o:["Ko‘k","Qizil","Sariq","Qora"],a:0},
+{q:"Temur joy?",o:["Shahrisabz","Xiva","Nukus","Farg‘ona"],a:0},
+{q:"O‘zbekiston?",o:["Davlat","Shahar","Daryo","Tog‘"],a:0}
+],
+
+/* GEO */
+[
+{q:"Okean?",o:["Tinch","Atlantika","Hind","Arktika"],a:0},
+{q:"Qit’a?",o:["7","5","6","8"],a:0},
+{q:"Nil?",o:["Daryo","Tog‘","Ko‘l","Shahar"],a:0},
+{q:"Yer?",o:["Planet","Yulduz","Oy","Quyosh"],a:0},
+{q:"Sovuq?",o:["Antarktida","Afrika","Osiyo","Yevropa"],a:0},
+{q:"Dunyo?",o:["Planet","Yulduz","Oy","Quyosh"],a:0},
+{q:"Qit’a soni?",o:["7","6","5","4"],a:0},
+{q:"Daryo?",o:["Nil","Amu","Sirdaryo","Volga"],a:0}
+],
+
+/* ENGLISH */
+[
+{q:"Hello?",o:["Salom","Xayr","Rahmat","Uzr"],a:0},
+{q:"Book?",o:["Kitob","Qalam","Stol","Telefon"],a:0},
+{q:"Apple?",o:["Olma","Banan","Uzum","Anor"],a:0},
+{q:"Go past?",o:["Went","Go","Gone","Going"],a:0},
+{q:"Dog?",o:["It","Mushuk","Ot","Qush"],a:0},
+{q:"Water?",o:["Suv","Olov","Havo","Tuproq"],a:0},
+{q:"Sun?",o:["Quyosh","Oy","Yulduz","Yer"],a:0},
+{q:"Ice?",o:["Muz","Suv","Tosh","Olov"],a:0}
+],
+
+/* SPORT */
+[
+{q:"11 o‘yinchi?",o:["Futbol","Basketbol","Tennis","Hokkey"],a:0},
+{q:"Messi?",o:["Argentina","Braziliya","Fransiya","Italiya"],a:0},
+{q:"Ronaldo?",o:["Portugal","Ispaniya","Germaniya","Fransiya"],a:0},
+{q:"NBA?",o:["Basketbol","Futbol","Tennis","Hokkey"],a:0},
+{q:"Olimpiada?",o:["4","2","1","5"],a:0},
+{q:"Gepard?",o:["Tez","Sekin","Og‘ir","Kichik"],a:0},
+{q:"Sport?",o:["Harakat","Uyqu","Ovqat","Kitob"],a:0},
+{q:"O‘yin?",o:["Fun","Work","Sleep","Eat"],a:0}
+]
+
+];
 
 /* 4 BONUS */
-let bonusCells=[];
-while(bonusCells.length<4){
+let bonus=[];
+while(bonus.length<4){
 let r=Math.floor(Math.random()*40);
-if(!bonusCells.includes(r)) bonusCells.push(r);
+if(!bonus.includes(r)) bonus.push(r);
 }
 
 function board(){
@@ -112,50 +168,33 @@ r+=`<td onclick="openQ(${j},${i},this,${id})">${pts[i]}</td>`;
 r+="</tr>";
 t.innerHTML+=r;
 }
-update();
+}
+
+function showBonus(text){
+let b=document.getElementById("bonusBox");
+b.innerText=text;
+b.style.display="block";
+setTimeout(()=>b.style.display="none",1500);
 }
 
 function openQ(c,i,cell,id){
 
 /* BONUS */
-if(bonusCells.includes(id)){
+if(bonus.includes(id)){
 
 let type=Math.floor(Math.random()*4);
 
-if(type===0){
-scores[current]+=pts[i]*2;
-alert("⚡ 2X BONUS");
-}
+if(type===0) showBonus("⚡ 2X BONUS");
+if(type===1) showBonus("🔁 SWAP BONUS");
+if(type===2) showBonus("🦹 STEAL BONUS");
+if(type===3) showBonus("💰 +1000 BONUS");
 
-if(type===1){
-let e=(current+1)%4;
-let tmp=scores[current];
-scores[current]=scores[e];
-scores[e]=tmp;
-alert("🔁 SWAP");
-}
-
-if(type===2){
-let e=(current+1)%4;
-let val=Math.min(scores[e],1000);
-scores[e]-=val;
-scores[current]+=val;
-alert("🦹 STEAL +" + val);
-}
-
-if(type===3){
-scores[current]+=1000;
-alert("💰 +1000 BONUS");
-}
-
-cell.innerText="🎁";
 cell.style.background="gold";
-
-next(); update();
+cell.innerText="🎁";
 return;
 }
 
-/* SAVOL */
+/* QUESTION */
 let qq=q[c][i];
 
 let div=document.createElement("div");
@@ -168,47 +207,16 @@ b.className="option";
 b.innerText=o;
 
 b.onclick=()=>{
-
-let p=pts[i];
-
-if(doubleTurn[current]){
-p*=2;
-doubleTurn[current]=false;
-}
-
-if(x===qq.a) scores[current]+=p;
-else scores[current]-=p;
-
+alert(x===qq.a?"✔ TO‘G‘RI":"❌ XATO");
 cell.style.background="gray";
 cell.onclick=null;
-
 document.body.removeChild(div);
-
-next(); update();
 };
 
 div.appendChild(b);
 });
 
 document.body.appendChild(div);
-}
-
-function next(){
-current=(current+1)%4;
-}
-
-function update(){
-for(let i=0;i<4;i++){
-document.getElementById("s"+i).innerText=scores[i];
-document.getElementById("t"+i).classList.remove("active");
-}
-document.getElementById("t"+current).classList.add("active");
-}
-
-/* MANUAL SCORE EDIT */
-function edit(i,val){
-scores[i]=Number(val);
-update();
 }
 
 board();
