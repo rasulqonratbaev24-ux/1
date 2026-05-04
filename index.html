@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Jeopardy PRO</title>
+<title>Jeopardy PRO CLEAN</title>
 
 <style>
 body{
@@ -12,7 +12,6 @@ body{
   color:white;
 }
 
-/* SCORE PANEL */
 .score{
   display:flex;
   justify-content:center;
@@ -22,37 +21,33 @@ body{
 }
 
 .team{
-  padding:20px 30px;
+  padding:10px 15px;
   background:#222;
-  border:4px solid white;
-  border-radius:20px;
-  font-size:36px;
-  transition:0.3s;
+  border:2px solid white;
+  border-radius:10px;
+  font-size:18px;
 }
 
 .active{
   background:green;
   transform:scale(1.1);
-  box-shadow:0 0 24px lime;
 }
 
-/* BOARD */
 table{
   margin:auto;
   border-collapse:collapse;
 }
 
 th,td{
-  width:240px;
-  height:120px;
-  border:4px solid white;
+  width:120px;
+  height:60px;
+  border:2px solid white;
   cursor:pointer;
 }
 
 th{background:darkred;}
 td{background:blue;}
 
-/* MODAL */
 .modal{
   position:fixed;
   top:20%;
@@ -60,43 +55,20 @@ td{background:blue;}
   transform:translateX(-50%);
   width:60%;
   background:#222;
-  padding:40px;
-  border:4px solid white;
+  padding:20px;
+  border:2px solid white;
   z-index:999;
 }
 
 .option{
-  margin:20px;
-  padding:20px;
+  margin:10px;
+  padding:10px;
   background:#333;
   border:1px solid white;
   cursor:pointer;
 }
 
 .option:hover{background:#555;}
-
-/* ANIMATION */
-.pop{
-  animation:pop 0.4s ease;
-}
-
-@keyframes pop{
-  0%{transform:scale(1);}
-  50%{transform:scale(1.3);}
-  100%{transform:scale(1);}
-}
-
-/* WIN */
-#win{
-  display:none;
-  position:fixed;
-  top:0;left:0;
-  width:100%;height:100%;
-  background:black;
-  color:gold;
-  font-size:80px;
-  padding-top:240px;
-}
 </style>
 </head>
 
@@ -104,7 +76,6 @@ td{background:blue;}
 
 <h1>🎮 JEOPARDY PRO</h1>
 
-<!-- TEAMS -->
 <div class="score">
   <div class="team" id="t0">TEAM 1: <span id="s0">0</span></div>
   <div class="team" id="t1">TEAM 2: <span id="s1">0</span></div>
@@ -114,17 +85,13 @@ td{background:blue;}
 
 <table id="board"></table>
 
-<div id="win"></div>
-
 <script>
 
 let scores=[0,0,0,0];
 let current=0;
 let used=0;
-let box=null;
-let prize=[];
 
-const cats=["Math","Tarix","Geo","English","Sport"];
+const cats=["Math","History","Geo","English","Sport"];
 const pts=[100,200,300,400,500,600,700,800];
 
 /* 40 SAVOL */
@@ -140,52 +107,46 @@ const q=[
 {q:"20/5?",o:["2","3","4","5"],a:2}
 ],
 [
-{q:"Poytaxt?",o:["Toshkent","Buxoro","Xiva","Nukus"],a:0},
-{q:"1991?",o:["Mustaqillik","Urush","Inqilob","Davlat"],a:0},
-{q:"Temur?",o:["Sarkarda","Shoir","Olim","Artist"],a:0},
-{q:"Karimov?",o:["Prezident","Sportchi","Olim","Aktyor"],a:0},
-{q:"1945?",o:["Urush","Boshlanish","Davlat","Tinchlik"],a:0},
-{q:"Bayroq?",o:["Ko'k","Qizil","Sariq","Qora"],a:0},
-{q:"O'zbekiston?",o:["Davlat","Shahar","Daryo","Tog"],a:0},
-{q:"Temur tug‘ilgan?",o:["Shahrisabz","Xiva","Nukus","Farg'ona"],a:0}
+{q:"Capital?",o:["Tashkent","Bukhara","Khiva","Nukus"],a:0},
+{q:"1991?",o:["Independence","War","Revolution","State"],a:0},
+{q:"Temur?",o:["Leader","Singer","Actor","Writer"],a:0},
+{q:"1945?",o:["WW2 End","Start","Peace","Fight"],a:0},
+{q:"Flag?",o:["Blue","Red","Yellow","Black"],a:0},
+{q:"Country?",o:["State","City","River","Tree"],a:0},
+{q:"Shahrisabz?",o:["Birth","Sea","Lake","Mountain"],a:0},
+{q:"Uzbekistan?",o:["Country","City","River","Sea"],a:0}
 ],
 [
-{q:"Okean?",o:["Tinch","Atlantika","Hind","Shimoliy"],a:0},
-{q:"Qit'a?",o:["7","5","6","8"],a:0},
-{q:"Nil?",o:["Daryo","Ko'l","Tog","Shahar"],a:0},
-{q:"Yer?",o:["Planeta","Yulduz","Oy","Quyosh"],a:0},
-{q:"Sovuq?",o:["Antarktida","Afrika","Osiyo","Yevropa"],a:0},
-{q:"Dunyo?",o:["Planeta","Yulduz","Oy","Quyosh"],a:0},
-{q:"Qit'a soni?",o:["7","6","5","4"],a:0},
-{q:"Daryo?",o:["Nil","Amu","Sirdaryo","Volga"],a:0}
+{q:"Ocean?",o:["Pacific","Atlantic","Indian","Arctic"],a:0},
+{q:"Continents?",o:["7","5","6","8"],a:0},
+{q:"Nile?",o:["River","Lake","Mountain","Sea"],a:0},
+{q:"Earth?",o:["Planet","Star","Moon","Sun"],a:0},
+{q:"Cold place?",o:["Antarctica","Africa","Asia","Europe"],a:0},
+{q:"World?",o:["Planet","Star","Moon","Sun"],a:0},
+{q:"Continents?",o:["7","6","5","4"],a:0},
+{q:"River?",o:["Nile","Amu","Syr","Volga"],a:0}
 ],
 [
-{q:"Hello?",o:["Salom","Xayr","Rahmat","Uzr"],a:0},
-{q:"Book?",o:["Kitob","Qalam","Stol","Telefon"],a:0},
-{q:"Apple?",o:["Olma","Banan","Uzum","Anor"],a:0},
-{q:"Go past?",o:["Went","Go","Gone","Going"],a:0},
-{q:"Dog?",o:["It","Mushuk","Ot","Qush"],a:0},
-{q:"Water?",o:["Suv","Olov","Havo","Tuproq"],a:0},
-{q:"Sun?",o:["Quyosh","Oy","Yulduz","Yer"],a:0},
-{q:"Ice?",o:["Muz","Suv","Tosh","Olov"],a:0}
+{q:"Hello?",o:["Salom","Bye","Thanks","Sorry"],a:0},
+{q:"Book?",o:["Kitob","Pen","Table","Phone"],a:0},
+{q:"Apple?",o:["Olma","Banana","Grape","Melon"],a:0},
+{q:"Dog?",o:["It","Cat","Horse","Bird"],a:0},
+{q:"Water?",o:["Suv","Fire","Air","Soil"],a:0},
+{q:"Sun?",o:["Quyosh","Moon","Star","Earth"],a:0},
+{q:"Ice?",o:["Muz","Water","Stone","Fire"],a:0},
+{q:"Go past?",o:["Went","Go","Gone","Going"],a:0}
 ],
 [
-{q:"Futbol?",o:["11","10","9","12"],a:0},
-{q:"Messi?",o:["Argentina","Braziliya","Fransiya","Italiya"],a:0},
-{q:"Ronaldo?",o:["Portugal","Ispaniya","Germaniya","Fransiya"],a:0},
-{q:"NBA?",o:["Basketbol","Futbol","Tennis","Hokkey"],a:0},
-{q:"Olimpiada?",o:["4 yil","2 yil","1 yil","5 yil"],a:0},
-{q:"Gepard?",o:["Tez","Sekin","Og'ir","Kichik"],a:0},
-{q:"Sport?",o:["Harakat","Uyqu","Ovqat","Kitob"],a:0},
-{q:"O'yin?",o:["Fun","Work","Sleep","Eat"],a:0}
+{q:"Football players?",o:["11","10","9","12"],a:0},
+{q:"Messi?",o:["Argentina","Brazil","France","Italy"],a:0},
+{q:"Ronaldo?",o:["Portugal","Spain","Germany","France"],a:0},
+{q:"NBA?",o:["Basketball","Football","Tennis","Hockey"],a:0},
+{q:"Olympics?",o:["4 years","2 years","1 year","5 years"],a:0},
+{q:"Cheetah?",o:["Fast","Slow","Heavy","Small"],a:0},
+{q:"Sport?",o:["Movement","Sleep","Food","Book"],a:0},
+{q:"Game?",o:["Fun","Work","Rest","Eat"],a:0}
 ]
 ];
-
-/* 4 BONUS */
-while(prize.length<4){
-let r=Math.floor(Math.random()*40);
-if(!prize.includes(r)) prize.push(r);
-}
 
 function board(){
 let t=document.getElementById("board");
@@ -204,52 +165,15 @@ r+=`<td onclick="openQ(${j},${i},this,${id})">${pts[i]}</td>`;
 r+="</tr>";
 t.innerHTML+=r;
 }
-updateActive();
+update();
 }
 
 function openQ(c,i,cell,id){
-
-/* 🎁 BONUS */
-if(prize.includes(id)){
-
-let bonus = pts[i] * 2;
-
-scores[current] += bonus;
-
-/* 🎁 KO‘RINADIGAN BONUS */
-let div = document.createElement("div");
-div.innerText = "🎁 BONUS +" + bonus;
-div.style.position = "fixed";
-div.style.top = "40%";
-div.style.left = "50%";
-div.style.transform = "translate(-50%,-50%)";
-div.style.background = "gold";
-div.style.color = "black";
-div.style.padding = "20px";
-div.style.fontSize = "30px";
-div.style.border = "3px solid white";
-div.style.borderRadius = "10px";
-div.style.zIndex = "9999";
-
-document.body.appendChild(div);
-
-setTimeout(()=>{
-  div.remove();
-},1500);
-
-cell.innerText = "🎁";
-cell.style.background = "gold";
-
-next();
-update();
-return;
-}
 
 let qq=q[c][i];
 
 let div=document.createElement("div");
 div.className="modal";
-box=div;
 
 div.innerHTML="<h2>"+qq.q+"</h2>";
 
@@ -266,8 +190,6 @@ scores[current]+=pts[i];
 scores[current]-=pts[i];
 }
 
-animate(current,x===qq.a?"+":"-",pts[i]);
-
 cell.style.background="gray";
 cell.onclick=null;
 
@@ -283,40 +205,27 @@ div.appendChild(b);
 document.body.appendChild(div);
 }
 
-function animate(t,type,val){
-let el=document.getElementById("t"+t);
-el.classList.add("pop");
-setTimeout(()=>el.classList.remove("pop"),400);
-}
-
 function next(){
 current=(current+1)%4;
 used++;
-if(used===40) win();
+if(used===40){
+let m=Math.max(...scores);
+let w=scores.indexOf(m)+1;
+alert("🏆 WINNER TEAM " + w);
+}
 }
 
 function update(){
 for(let i=0;i<4;i++){
 document.getElementById("s"+i).innerText=scores[i];
-}
-updateActive();
-}
-
-function updateActive(){
-for(let i=0;i<4;i++){
 document.getElementById("t"+i).classList.remove("active");
 }
 document.getElementById("t"+current).classList.add("active");
 }
 
-function win(){
-let m=Math.max(...scores);
-let w=scores.indexOf(m)+1;
-
-
 board();
-update();
 
 </script>
+
 </body>
 </html>
