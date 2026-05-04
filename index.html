@@ -6,7 +6,7 @@
 <style>
 body {font-family:Arial;text-align:center;background:#111;color:white;}
 table{margin:auto;border-collapse:collapse;}
-th,td{width:120px;height:60px;border:2px solid white;cursor:pointer;}
+th,td{width:240px;height:120px;border:4px solid white;cursor:pointer;}
 th{background:darkred;}
 td{background:blue;}
 
@@ -19,7 +19,7 @@ border:1px solid white;cursor:pointer;
 position:fixed;top:20%;left:50%;
 transform:translateX(-50%);
 width:60%;background:#222;
-padding:20px;border:2px solid white;
+padding:40px;border:4px solid white;
 z-index:999;
 }
 
@@ -27,7 +27,7 @@ z-index:999;
 display:none;position:fixed;
 top:0;left:0;width:100%;height:100%;
 background:black;color:gold;
-font-size:40px;padding-top:200px;
+font-size:80px;padding-top:240px;
 }
 </style>
 </head>
@@ -214,13 +214,6 @@ t3.innerText=scores[2];
 t4.innerText=scores[3];
 }
 
-function showWinner(){
-let max=Math.max(...scores);
-let w=scores.indexOf(max)+1;
-
-win.style.display="block";
-win.innerHTML="🏆 WINNER: TEAM "+w+"<br>Score: "+max;
-}
 
 createBoard();
 update();
