@@ -211,9 +211,35 @@ function openQ(c,i,cell,id){
 
 /* 🎁 BONUS */
 if(prize.includes(id)){
-scores[current]+=pts[i]*2;
-cell.innerText="🎁";
-cell.style.background="gold";
+
+let bonus = pts[i] * 2;
+
+scores[current] += bonus;
+
+/* 🎁 KO‘RINADIGAN BONUS */
+let div = document.createElement("div");
+div.innerText = "🎁 BONUS +" + bonus;
+div.style.position = "fixed";
+div.style.top = "40%";
+div.style.left = "50%";
+div.style.transform = "translate(-50%,-50%)";
+div.style.background = "gold";
+div.style.color = "black";
+div.style.padding = "20px";
+div.style.fontSize = "30px";
+div.style.border = "3px solid white";
+div.style.borderRadius = "10px";
+div.style.zIndex = "9999";
+
+document.body.appendChild(div);
+
+setTimeout(()=>{
+  div.remove();
+},1500);
+
+cell.innerText = "🎁";
+cell.style.background = "gold";
+
 next();
 update();
 return;
