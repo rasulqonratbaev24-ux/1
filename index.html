@@ -1,73 +1,134 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Jeopardy TEAM MODE</title>
+<meta charset="UTF-8">
+<title>Jeopardy PRO</title>
 
 <style>
-body {font-family:Arial;text-align:center;background:#111;color:white;}
-table{margin:auto;border-collapse:collapse;}
-th,td{width:240px;height:120px;border:4px solid white;cursor:pointer;}
+body{
+  font-family:Arial;
+  text-align:center;
+  background:#111;
+  color:white;
+}
+
+/* SCORE PANEL */
+.score{
+  display:flex;
+  justify-content:center;
+  gap:10px;
+  flex-wrap:wrap;
+  margin:15px;
+}
+
+.team{
+  padding:10px 15px;
+  background:#222;
+  border:2px solid white;
+  border-radius:10px;
+  font-size:18px;
+  transition:0.3s;
+}
+
+.active{
+  background:green;
+  transform:scale(1.1);
+  box-shadow:0 0 15px lime;
+}
+
+/* BOARD */
+table{
+  margin:auto;
+  border-collapse:collapse;
+}
+
+th,td{
+  width:120px;
+  height:60px;
+  border:2px solid white;
+  cursor:pointer;
+}
+
 th{background:darkred;}
 td{background:blue;}
 
-.option{
-margin:10px;padding:10px;background:#222;
-border:1px solid white;cursor:pointer;
-}
-
+/* MODAL */
 .modal{
-position:fixed;top:20%;left:50%;
-transform:translateX(-50%);
-width:60%;background:#222;
-padding:40px;border:4px solid white;
-z-index:999;
+  position:fixed;
+  top:20%;
+  left:50%;
+  transform:translateX(-50%);
+  width:60%;
+  background:#222;
+  padding:20px;
+  border:2px solid white;
+  z-index:999;
 }
 
+.option{
+  margin:10px;
+  padding:10px;
+  background:#333;
+  border:1px solid white;
+  cursor:pointer;
+}
+
+.option:hover{background:#555;}
+
+/* ANIMATION */
+.pop{
+  animation:pop 0.4s ease;
+}
+
+@keyframes pop{
+  0%{transform:scale(1);}
+  50%{transform:scale(1.3);}
+  100%{transform:scale(1);}
+}
+
+/* WIN */
 #win{
-display:none;position:fixed;
-top:0;left:0;width:100%;height:100%;
-background:black;color:gold;
-font-size:80px;padding-top:240px;
+  display:none;
+  position:fixed;
+  top:0;left:0;
+  width:100%;height:100%;
+  background:black;
+  color:gold;
+  font-size:40px;
+  padding-top:200px;
 }
 </style>
 </head>
 
 <body>
 
-<h1>🎮 JEOPARDY TEAM MODE</h1>
+<h1>🎮 JEOPARDY PRO</h1>
 
-
+<!-- TEAMS -->
+<div class="score">
+  <div class="team" id="t0">TEAM 1: <span id="s0">0</span></div>
+  <div class="team" id="t1">TEAM 2: <span id="s1">0</span></div>
+  <div class="team" id="t2">TEAM 3: <span id="s2">0</span></div>
+  <div class="team" id="t3">TEAM 4: <span id="s3">0</span></div>
+</div>
 
 <table id="board"></table>
-<div id="win"></div>
 
-<!-- 🔊 MUSIC -->
-<audio id="bgm" src="music.mp3" loop></audio>
+<div id="win"></div>
 
 <script>
 
 let scores=[0,0,0,0];
 let current=0;
 let used=0;
-let currentBox=null;
+let box=null;
+let prize=[];
 
-let prizeCells=[];
+const cats=["Math","Tarix","Geo","English","Sport"];
+const pts=[100,200,300,400,500,600,700,800];
 
-const teams=["TEAM 1🔵","TEAM 2🔴","TEAM 3🟢","TEAM 4🟡"];
-
-const ca<div class="score">
-  <div class="score">
-  <div class="team">TEAM 1: <span id="t1">0</span></div>
-  <div class="team">TEAM 2: <span id="t2">0</span></div>
-  <div class="team">TEAM 3: <span id="t3">0</span></div>
-  <div class="team">TEAM 4: <span id="t4">0</span></div>
-</div>
-  
-  tegories=["Math","Tarix","Geo","English","Sport"];
-const points=[100,200,300,400,500,600,700,800];
-
-// 🎯 40 SAVOL
-const questions=[
+/* 40 SAVOL */
+const q=[
 [
 {q:"2+2?",o:["3","4","5","6"],a:1},
 {q:"5×5?",o:["20","25","30","15"],a:1},
@@ -89,7 +150,7 @@ const questions=[
 {q:"Temur tug‘ilgan?",o:["Shahrisabz","Xiva","Nukus","Farg'ona"],a:0}
 ],
 [
-{q:"Eng katta okean?",o:["Tinch","Atlantika","Hind","Shimoliy"],a:0},
+{q:"Okean?",o:["Tinch","Atlantika","Hind","Shimoliy"],a:0},
 {q:"Qit'a?",o:["7","5","6","8"],a:0},
 {q:"Nil?",o:["Daryo","Ko'l","Tog","Shahar"],a:0},
 {q:"Yer?",o:["Planeta","Yulduz","Oy","Quyosh"],a:0},
@@ -120,108 +181,120 @@ const questions=[
 ]
 ];
 
-// 🎁 PRIZE
-while(prizeCells.length<4){
+/* 4 BONUS */
+while(prize.length<4){
 let r=Math.floor(Math.random()*40);
-if(!prizeCells.includes(r)) prizeCells.push(r);
+if(!prize.includes(r)) prize.push(r);
 }
 
-// 🔊 MUSIC START
-window.onload=()=>{
-document.getElementById("bgm").play();
-}
-
-function createBoard(){
+function board(){
 let t=document.getElementById("board");
 
 let h="<tr>";
-categories.forEach(c=>h+="<th>"+c+"</th>");
+cats.forEach(c=>h+="<th>"+c+"</th>");
 h+="</tr>";
 t.innerHTML+=h;
 
 for(let i=0;i<8;i++){
 let r="<tr>";
 for(let j=0;j<5;j++){
-let index=i*5+j;
-r+=`<td onclick="openQ(${j},${i},this,${index})">${points[i]}</td>`;
+let id=i*5+j;
+r+=`<td onclick="openQ(${j},${i},this,${id})">${pts[i]}</td>`;
 }
 r+="</tr>";
 t.innerHTML+=r;
 }
+updateActive();
 }
 
-function openQ(cat,idx,cell,index){
+function openQ(c,i,cell,id){
 
-// 🎁 BONUS
-if(prizeCells.includes(index)){
-let bonus=points[idx]*2;
-
-alert("🎁 BONUS +"+bonus);
-
-scores[current]+=bonus;
-
-cell.style.background="gold";
+/* 🎁 BONUS */
+if(prize.includes(id)){
+scores[current]+=pts[i]*2;
 cell.innerText="🎁";
-cell.onclick=null;
-
-current=(current+1)%4;
+cell.style.background="gold";
+next();
 update();
-
-used++;
-if(used===40) showWinner();
 return;
 }
 
-let q=questions[cat][idx];
+let qq=q[c][i];
 
-let box=document.createElement("div");
-currentBox=box;
-box.className="modal";
+let div=document.createElement("div");
+div.className="modal";
+box=div;
 
-box.innerHTML="<h2>"+q.q+"</h2>";
+div.innerHTML="<h2>"+qq.q+"</h2>";
 
-q.o.forEach((opt,i)=>{
-let btn=document.createElement("div");
-btn.className="option";
-btn.innerText=opt;
+qq.o.forEach((o,x)=>{
+let b=document.createElement("div");
+b.className="option";
+b.innerText=o;
 
-btn.onclick=()=>{
-if(i===q.a){
-scores[current]+=points[idx];
+b.onclick=()=>{
+
+if(x===qq.a){
+scores[current]+=pts[i];
 }else{
-scores[current]-=points[idx];
+scores[current]-=pts[i];
 }
 
-current=(current+1)%4;
-update();
+animate(current,x===qq.a?"+":"-",pts[i]);
 
 cell.style.background="gray";
 cell.onclick=null;
 
-document.body.removeChild(box);
+document.body.removeChild(div);
 
-used++;
-if(used===40) showWinner();
+next();
+update();
 };
 
-box.appendChild(btn);
+div.appendChild(b);
 });
 
-document.body.appendChild(box);
+document.body.appendChild(div);
+}
+
+function animate(t,type,val){
+let el=document.getElementById("t"+t);
+el.classList.add("pop");
+setTimeout(()=>el.classList.remove("pop"),400);
+}
+
+function next(){
+current=(current+1)%4;
+used++;
+if(used===40) win();
 }
 
 function update(){
-t1.innerText=scores[0];
-t2.innerText=scores[1];
-t3.innerText=scores[2];
-t4.innerText=scores[3];
+for(let i=0;i<4;i++){
+document.getElementById("s"+i).innerText=scores[i];
+}
+updateActive();
 }
 
+function updateActive(){
+for(let i=0;i<4;i++){
+document.getElementById("t"+i).classList.remove("active");
+}
+document.getElementById("t"+current).classList.add("active");
+}
 
-createBoard();
+function win(){
+let m=Math.max(...scores);
+let w=scores.indexOf(m)+1;
+
+win=document.getElementById("win");
+win.style.display="block";
+win.innerHTML="🏆 TEAM "+w+" WIN!";
+}
+
+board();
 update();
 
 </script>
-
 </body>
 </html>
