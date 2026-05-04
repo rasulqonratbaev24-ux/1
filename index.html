@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Jeopardy PRO CLEAN</title>
+<title>Jeopardy PRO FINAL</title>
 
 <style>
 body{
@@ -15,17 +15,17 @@ body{
 .score{
   display:flex;
   justify-content:center;
-  gap:10px;
+  gap:20px;
   flex-wrap:wrap;
-  margin:15px;
+  margin:30px;
 }
 
 .team{
-  padding:10px 15px;
+  padding:20px 30px;
   background:#222;
   border:2px solid white;
-  border-radius:10px;
-  font-size:18px;
+  border-radius:20px;
+  font-size:36px;
 }
 
 .active{
@@ -39,9 +39,9 @@ table{
 }
 
 th,td{
-  width:120px;
-  height:60px;
-  border:2px solid white;
+  width:240px;
+  height:120px;
+  border:4px solid white;
   cursor:pointer;
 }
 
@@ -55,14 +55,14 @@ td{background:blue;}
   transform:translateX(-50%);
   width:60%;
   background:#222;
-  padding:20px;
-  border:2px solid white;
+  padding:40px;
+  border:4px solid white;
   z-index:999;
 }
 
 .option{
-  margin:10px;
-  padding:10px;
+  margin:20px;
+  padding:20px;
   background:#333;
   border:1px solid white;
   cursor:pointer;
@@ -137,7 +137,7 @@ const q=[
 {q:"Go past?",o:["Went","Go","Gone","Going"],a:0}
 ],
 [
-{q:"Football players?",o:["11","10","9","12"],a:0},
+{q:"Football?",o:["11","10","9","12"],a:0},
 {q:"Messi?",o:["Argentina","Brazil","France","Italy"],a:0},
 {q:"Ronaldo?",o:["Portugal","Spain","Germany","France"],a:0},
 {q:"NBA?",o:["Basketball","Football","Tennis","Hockey"],a:0},
@@ -147,6 +147,14 @@ const q=[
 {q:"Game?",o:["Fun","Work","Rest","Eat"],a:0}
 ]
 ];
+
+let prize=[];
+
+/* 🎁 PRIZE RANDOM */
+while(prize.length<4){
+let r=Math.floor(Math.random()*60);
+if(!prize.includes(r)) prize.push(r);
+}
 
 function board(){
 let t=document.getElementById("board");
@@ -170,6 +178,40 @@ update();
 
 function openQ(c,i,cell,id){
 
+/* 🎁 PRIZE */
+if(prize.includes(id)){
+
+let bonus = pts[i]*2;
+scores[current]+=bonus;
+
+/* POPUP */
+let div=document.createElement("div");
+div.innerText="🎁 BONUS +" + bonus;
+div.style.position="fixed";
+div.style.top="50%";
+div.style.left="50%";
+div.style.transform="translate(-50%,-50%)";
+div.style.background="gold";
+div.style.color="black";
+div.style.padding="25px";
+div.style.fontSize="32px";
+div.style.border="3px solid white";
+div.style.borderRadius="12px";
+div.style.zIndex="9999";
+
+document.body.appendChild(div);
+
+setTimeout(()=>div.remove(),1500);
+
+cell.innerText="🎁";
+cell.style.background="gold";
+
+next();
+update();
+return;
+}
+
+/* QUESTION */
 let qq=q[c][i];
 
 let div=document.createElement("div");
@@ -208,6 +250,7 @@ document.body.appendChild(div);
 function next(){
 current=(current+1)%4;
 used++;
+
 if(used===40){
 let m=Math.max(...scores);
 let w=scores.indexOf(m)+1;
