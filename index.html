@@ -178,30 +178,59 @@ update();
 
 function openQ(c,i,cell,id){
 
-/* 🎁 PRIZE */
+/* 🎁 PRIZE SYSTEM (4 TYPES) */
 if(prize.includes(id)){
 
-let bonus = pts[i]*2;
-scores[current]+=bonus;
+let type = Math.floor(Math.random()*4);
+let bonus = pts[i];
+let text = "";
+
+/* 1 - BONUS */
+if(type === 0){
+  bonus = pts[i] * 2;
+  scores[current] += bonus;
+  text = "🎁 BONUS +" + bonus;
+}
+
+/* 2 - 2X */
+if(type === 1){
+  bonus = pts[i] * 2;
+  scores[current] += bonus;
+  text = "⚡ 2X +" + bonus;
+}
+
+/* 3 - STEAL */
+if(type === 2){
+  let steal = Math.min(scores[(current+1)%4], 1000);
+  scores[(current+1)%4] -= steal;
+  scores[current] += steal;
+  text = "🦹 STEAL +" + steal;
+}
+
+/* 4 - NORMAL BONUS */
+if(type === 3){
+  scores[current] += pts[i];
+  text = "🎁 +" + pts[i];
+}
 
 /* POPUP */
-let div=document.createElement("div");
-div.innerText="🎁 BONUS +" + bonus;
+let div = document.createElement("div");
+div.innerText = text;
+
 div.style.position="fixed";
 div.style.top="50%";
 div.style.left="50%";
 div.style.transform="translate(-50%,-50%)";
 div.style.background="gold";
 div.style.color="black";
-div.style.padding="25px";
-div.style.fontSize="32px";
-div.style.border="3px solid white";
-div.style.borderRadius="12px";
+div.style.padding="20px";
+div.style.fontSize="28px";
+div.style.border="2px solid black";
 div.style.zIndex="9999";
 
 document.body.appendChild(div);
 
-setTimeout(()=>div.remove(),1500);
+setTimeout(()=>div.remove(),1200);
 
 cell.innerText="🎁";
 cell.style.background="gold";
@@ -209,7 +238,7 @@ cell.style.background="gold";
 next();
 update();
 return;
-}
+  }
 
 /* QUESTION */
 let qq=q[c][i];
