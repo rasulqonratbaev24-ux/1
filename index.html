@@ -2,85 +2,72 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>Jeopardy PRO FINAL</title>
+<title>Jeopardy PRO</title>
 
 <style>
-body{
-  font-family:Arial;
-  text-align:center;
-  background:#111;
-  color:white;
-}
+body{background:#111;color:white;font-family:Arial;text-align:center;}
 
 .score{
-  display:flex;
-  justify-content:center;
-  gap:20px;
-  flex-wrap:wrap;
-  margin:30px;
+display:flex;justify-content:center;gap:10px;flex-wrap:wrap;margin:10px;
 }
 
 .team{
-  padding:20px 30px;
-  background:#222;
-  border:2px solid white;
-  border-radius:20px;
-  font-size:36px;
+padding:10px;
+border:2px solid white;
+border-radius:8px;
 }
 
-.active{
-  background:green;
-  transform:scale(1.1);
+.active{background:green;}
+
+table{margin:auto;border-collapse:collapse;}
+
+td,th{
+width:110px;height:60px;
+border:2px solid white;
+cursor:pointer;
+text-align:center;
 }
 
-table{
-  margin:auto;
-  border-collapse:collapse;
-}
-
-th,td{
-  width:240px;
-  height:120px;
-  border:4px solid white;
-  cursor:pointer;
-}
-
-th{background:darkred;}
+th{background:red;}
 td{background:blue;}
 
 .modal{
-  position:fixed;
-  top:20%;
-  left:50%;
-  transform:translateX(-50%);
-  width:60%;
-  background:#222;
-  padding:40px;
-  border:4px solid white;
-  z-index:999;
+position:fixed;
+top:30%;left:50%;
+transform:translate(-50%,-50%);
+background:#222;
+padding:20px;
+border:2px solid white;
+width:60%;
 }
 
 .option{
-  margin:20px;
-  padding:20px;
-  background:#333;
-  border:1px solid white;
-  cursor:pointer;
+margin:8px;
+padding:10px;
+background:#333;
+cursor:pointer;
 }
 
 .option:hover{background:#555;}
+
+.bonus{background:gold !important;color:black !important;}
+
+input{
+width:60px;text-align:center;
+}
 </style>
 </head>
 
 <body>
 
-<h1>🎮 JEOPARDY PRO</h1>
+<h2>🎮 JEOPARDY PRO FINAL</h2>
 
+<!-- SCORE -->
 <div class="score">
-  <div class="team" id="t0">TEAM 1: <span id="s0">0</span></div>
-  <div class="team" id="t1">TEAM 2: <span id="s1">0</span></div>
-  <div class="team" id="t2">TEAM 3: <span id="s2">0</span></div>
-  <div class="team" id="t3">TEAM 4: <span id="s3">0</span></div>
+<div class="team" id="t0">T1 <span id="s0">0</span> <input onchange="edit(0,this.value)"></div>
+<div class="team" id="t1">T2 <span id="s1">0</span> <input onchange="edit(1,this.value)"></div>
+<div class="team" id="t2">T3 <span id="s2">0</span> <input onchange="edit(2,this.value)"></div>
+<div class="team" id="t3">T4 <span id="s3">0</span> <input onchange="edit(3,this.value)"></div>
 </div>
 
 <table id="board"></table>
@@ -89,71 +76,23 @@ td{background:blue;}
 
 let scores=[0,0,0,0];
 let current=0;
-let used=0;
+let doubleTurn=[false,false,false,false];
 
-const cats=["Math","History","Geo","English","Sport"];
 const pts=[100,200,300,400,500,600,700,800];
+const cats=["A","B","C","D","E"];
 
 /* 40 SAVOL */
-const q=[
-[
-{q:"2+2?",o:["3","4","5","6"],a:1},
-{q:"5×5?",o:["20","25","30","15"],a:1},
-{q:"10-3?",o:["6","7","8","9"],a:1},
-{q:"12/4?",o:["2","3","4","6"],a:1},
-{q:"9+1?",o:["10","11","12","13"],a:0},
-{q:"6+6?",o:["10","12","14","16"],a:1},
-{q:"8×2?",o:["14","16","18","20"],a:1},
-{q:"20/5?",o:["2","3","4","5"],a:2}
-],
-[
-{q:"Capital?",o:["Tashkent","Bukhara","Khiva","Nukus"],a:0},
-{q:"1991?",o:["Independence","War","Revolution","State"],a:0},
-{q:"Temur?",o:["Leader","Singer","Actor","Writer"],a:0},
-{q:"1945?",o:["WW2 End","Start","Peace","Fight"],a:0},
-{q:"Flag?",o:["Blue","Red","Yellow","Black"],a:0},
-{q:"Country?",o:["State","City","River","Tree"],a:0},
-{q:"Shahrisabz?",o:["Birth","Sea","Lake","Mountain"],a:0},
-{q:"Uzbekistan?",o:["Country","City","River","Sea"],a:0}
-],
-[
-{q:"Ocean?",o:["Pacific","Atlantic","Indian","Arctic"],a:0},
-{q:"Continents?",o:["7","5","6","8"],a:0},
-{q:"Nile?",o:["River","Lake","Mountain","Sea"],a:0},
-{q:"Earth?",o:["Planet","Star","Moon","Sun"],a:0},
-{q:"Cold place?",o:["Antarctica","Africa","Asia","Europe"],a:0},
-{q:"World?",o:["Planet","Star","Moon","Sun"],a:0},
-{q:"Continents?",o:["7","6","5","4"],a:0},
-{q:"River?",o:["Nile","Amu","Syr","Volga"],a:0}
-],
-[
-{q:"Hello?",o:["Salom","Bye","Thanks","Sorry"],a:0},
-{q:"Book?",o:["Kitob","Pen","Table","Phone"],a:0},
-{q:"Apple?",o:["Olma","Banana","Grape","Melon"],a:0},
-{q:"Dog?",o:["It","Cat","Horse","Bird"],a:0},
-{q:"Water?",o:["Suv","Fire","Air","Soil"],a:0},
-{q:"Sun?",o:["Quyosh","Moon","Star","Earth"],a:0},
-{q:"Ice?",o:["Muz","Water","Stone","Fire"],a:0},
-{q:"Go past?",o:["Went","Go","Gone","Going"],a:0}
-],
-[
-{q:"Football?",o:["11","10","9","12"],a:0},
-{q:"Messi?",o:["Argentina","Brazil","France","Italy"],a:0},
-{q:"Ronaldo?",o:["Portugal","Spain","Germany","France"],a:0},
-{q:"NBA?",o:["Basketball","Football","Tennis","Hockey"],a:0},
-{q:"Olympics?",o:["4 years","2 years","1 year","5 years"],a:0},
-{q:"Cheetah?",o:["Fast","Slow","Heavy","Small"],a:0},
-{q:"Sport?",o:["Movement","Sleep","Food","Book"],a:0},
-{q:"Game?",o:["Fun","Work","Rest","Eat"],a:0}
-]
-];
+const q=Array(5).fill(0).map(()=>Array(8).fill(0).map(()=>({
+q:"Savol?",
+o:["A","B","C","D"],
+a:1
+})));
 
-let prize = [];
-
-for(let cat = 0; cat < 4; cat++){
-  let randomRow = Math.floor(Math.random() * 8); // 0–7
-  let id = randomRow * 5 + cat;
-  prize.push(id);
+/* 4 BONUS */
+let bonusCells=[];
+while(bonusCells.length<4){
+let r=Math.floor(Math.random()*40);
+if(!bonusCells.includes(r)) bonusCells.push(r);
 }
 
 function board(){
@@ -162,7 +101,7 @@ let t=document.getElementById("board");
 let h="<tr>";
 cats.forEach(c=>h+="<th>"+c+"</th>");
 h+="</tr>";
-t.innerHTML+=h;
+t.innerHTML=h;
 
 for(let i=0;i<8;i++){
 let r="<tr>";
@@ -178,75 +117,50 @@ update();
 
 function openQ(c,i,cell,id){
 
-/* 🎁 PRIZE SYSTEM (4 TYPES) */
-if(prize.includes(id)){
+/* BONUS */
+if(bonusCells.includes(id)){
 
-let type = Math.floor(Math.random()*4);
-let bonus = pts[i];
-let text = "";
+let type=Math.floor(Math.random()*4);
 
-/* 1 - BONUS */
-if(type === 0){
-  bonus = pts[i] * 2;
-  scores[current] += bonus;
-  text = "🎁 BONUS +" + bonus;
+if(type===0){
+scores[current]+=pts[i]*2;
+alert("⚡ 2X BONUS");
 }
 
-/* 2 - 2X */
-if(type === 1){
-  bonus = pts[i] * 2;
-  scores[current] += bonus;
-  text = "⚡ 2X +" + bonus;
+if(type===1){
+let e=(current+1)%4;
+let tmp=scores[current];
+scores[current]=scores[e];
+scores[e]=tmp;
+alert("🔁 SWAP");
 }
 
-/* 3 - STEAL */
-if(type === 2){
-  let steal = Math.min(scores[(current+1)%4], 1000);
-  scores[(current+1)%4] -= steal;
-  scores[current] += steal;
-  text = "🦹 STEAL +" + steal;
+if(type===2){
+let e=(current+1)%4;
+let val=Math.min(scores[e],1000);
+scores[e]-=val;
+scores[current]+=val;
+alert("🦹 STEAL +" + val);
 }
 
-/* 4 - NORMAL BONUS */
-if(type === 3){
-  scores[current] += pts[i];
-  text = "🎁 +" + pts[i];
+if(type===3){
+scores[current]+=1000;
+alert("💰 +1000 BONUS");
 }
-
-/* POPUP */
-let div = document.createElement("div");
-div.innerText = text;
-
-div.style.position="fixed";
-div.style.top="50%";
-div.style.left="50%";
-div.style.transform="translate(-50%,-50%)";
-div.style.background="gold";
-div.style.color="black";
-div.style.padding="20px";
-div.style.fontSize="28px";
-div.style.border="2px solid black";
-div.style.zIndex="9999";
-
-document.body.appendChild(div);
-
-setTimeout(()=>div.remove(),1200);
 
 cell.innerText="🎁";
 cell.style.background="gold";
 
-next();
-update();
+next(); update();
 return;
-  }
+}
 
-/* QUESTION */
+/* SAVOL */
 let qq=q[c][i];
 
 let div=document.createElement("div");
 div.className="modal";
-
-div.innerHTML="<h2>"+qq.q+"</h2>";
+div.innerHTML="<h3>"+qq.q+"</h3>";
 
 qq.o.forEach((o,x)=>{
 let b=document.createElement("div");
@@ -255,19 +169,22 @@ b.innerText=o;
 
 b.onclick=()=>{
 
-if(x===qq.a){
-scores[current]+=pts[i];
-}else{
-scores[current]-=pts[i];
+let p=pts[i];
+
+if(doubleTurn[current]){
+p*=2;
+doubleTurn[current]=false;
 }
+
+if(x===qq.a) scores[current]+=p;
+else scores[current]-=p;
 
 cell.style.background="gray";
 cell.onclick=null;
 
 document.body.removeChild(div);
 
-next();
-update();
+next(); update();
 };
 
 div.appendChild(b);
@@ -278,19 +195,6 @@ document.body.appendChild(div);
 
 function next(){
 current=(current+1)%4;
-used++;
-
-if(used===40){
-let m=Math.max(...scores);
-let w=scores.indexOf(m)+1;
-alert("🏆 WINNER TEAM " + w);
-}
-}
-
-/* ✍️ MANUAL EDIT SCORE */
-function edit(i,val){
-scores[i]=Number(val);
-update();
 }
 
 function update(){
@@ -299,6 +203,12 @@ document.getElementById("s"+i).innerText=scores[i];
 document.getElementById("t"+i).classList.remove("active");
 }
 document.getElementById("t"+current).classList.add("active");
+}
+
+/* MANUAL SCORE EDIT */
+function edit(i,val){
+scores[i]=Number(val);
+update();
 }
 
 board();
