@@ -1,0 +1,27 @@
+.team {
+  font-size: 22px;
+  padding: 10px;
+  margin: 5px;
+  background: #222;
+  border: 2px solid white;
+  border-radius: 10px;
+  transition: 0.3s;
+}
+
+/* 🟢 ACTIVE TEAM */
+.active {
+  background: green;
+  transform: scale(1.1);
+  box-shadow: 0 0 15px lime;
+}
+
+/* 🎆 + / - ANIMATION */
+.pop {
+  animation: pop 0.5s ease;
+}
+
+@keyframes pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.4); }
+  100% { transform: scale(1); }
+}
