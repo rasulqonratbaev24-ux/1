@@ -1,6 +1,0 @@
-function updateActive(){
-  for(let i=0;i<4;i++){
-    document.getElementById("team"+i).classList.remove("active");
-  }
-  document.getElementById("team"+current).classList.add("active");
-}
