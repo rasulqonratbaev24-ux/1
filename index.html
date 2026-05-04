@@ -1,97 +1,70 @@
 <!DOCTYPE html>
 <html>
 <head>
-<title>Jeopardy FIXED</title>
+<title>Jeopardy TEAM MODE</title>
 
 <style>
-body {
-  font-family: Arial;
-  text-align: center;
-  background: #111;
-  color: white;
+body {font-family:Arial;text-align:center;background:#111;color:white;}
+table{margin:auto;border-collapse:collapse;}
+th,td{width:120px;height:60px;border:2px solid white;cursor:pointer;}
+th{background:darkred;}
+td{background:blue;}
+
+.option{
+margin:10px;padding:10px;background:#222;
+border:1px solid white;cursor:pointer;
 }
 
-table {
-  margin: auto;
-  border-collapse: collapse;
+.modal{
+position:fixed;top:20%;left:50%;
+transform:translateX(-50%);
+width:60%;background:#222;
+padding:20px;border:2px solid white;
+z-index:999;
 }
 
-th, td {
-  width: 160px;
-  height: 120px;
-  border: 2px solid white;
-  cursor: pointer;
-}
-
-th { background: darkred; }
-td { background: blue; }
-
-.option {
-  margin: 20px;
-  padding: 24px;
-  background: #333;
-  color: white;
-  border: 2px solid white;
-  cursor: pointer;
-}
-
-.option:hover {
-  background: #555;
-}
-
-/* ✅ MUHIM FIX */
-.modal {
-  position: fixed;
-  top: 20%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 60%;
-  background: #222;
-  color: white;
-  padding: 20px;
-  border: 3px solid white;
-  z-index: 999;
-}
-
-#win {
-  display: none;
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: black;
-  color: gold;
-  font-size: 60px;
-  padding-top: 240px;
+#win{
+display:none;position:fixed;
+top:0;left:0;width:100%;height:100%;
+background:black;color:gold;
+font-size:40px;padding-top:200px;
 }
 </style>
 </head>
 
 <body>
 
-<h1>🎮 Jeopardy</h1>
+<h1>🎮 JEOPARDY TEAM MODE</h1>
 
 <div>
-P1:<span id="p1">0</span> |
-P2:<span id="p2">0</span> |
-P3:<span id="p3">0</span> |
-P4:<span id="p4">0</span>
+TEAM1:<span id="t1">0</span> |
+TEAM2:<span id="t2">0</span> |
+TEAM3:<span id="t3">0</span> |
+TEAM4:<span id="t4">0</span>
 </div>
 
 <table id="board"></table>
 <div id="win"></div>
 
+<!-- 🔊 MUSIC -->
+<audio id="bgm" src="music.mp3" loop></audio>
+
 <script>
 
-let scores=[0,0,0,0],current=0,used=0;
+let scores=[0,0,0,0];
+let current=0;
+let used=0;
 let currentBox=null;
+
+let prizeCells=[];
+
+const teams=["TEAM 1","TEAM 2","TEAM 3","TEAM 4"];
 
 const categories=["Math","Tarix","Geo","English","Sport"];
 const points=[100,200,300,400,500,600,700,800];
 
-// ❗ minimal savol (test uchun)
-const questions = [
+// 🎯 40 SAVOL
+const questions=[
 [
 {q:"2+2?",o:["3","4","5","6"],a:1},
 {q:"5×5?",o:["20","25","30","15"],a:1},
@@ -107,7 +80,7 @@ const questions = [
 {q:"1991?",o:["Mustaqillik","Urush","Inqilob","Davlat"],a:0},
 {q:"Temur?",o:["Sarkarda","Shoir","Olim","Artist"],a:0},
 {q:"Karimov?",o:["Prezident","Sportchi","Olim","Aktyor"],a:0},
-{q:"1945?",o:["Urush tugadi","Boshlanish","Davlat","Tinchlik"],a:0},
+{q:"1945?",o:["Urush","Boshlanish","Davlat","Tinchlik"],a:0},
 {q:"Bayroq?",o:["Ko'k","Qizil","Sariq","Qora"],a:0},
 {q:"O'zbekiston?",o:["Davlat","Shahar","Daryo","Tog"],a:0},
 {q:"Temur tug‘ilgan?",o:["Shahrisabz","Xiva","Nukus","Farg'ona"],a:0}
@@ -144,6 +117,17 @@ const questions = [
 ]
 ];
 
+// 🎁 PRIZE
+while(prizeCells.length<4){
+let r=Math.floor(Math.random()*40);
+if(!prizeCells.includes(r)) prizeCells.push(r);
+}
+
+// 🔊 MUSIC START
+window.onload=()=>{
+document.getElementById("bgm").play();
+}
+
 function createBoard(){
 let t=document.getElementById("board");
 
@@ -155,20 +139,41 @@ t.innerHTML+=h;
 for(let i=0;i<8;i++){
 let r="<tr>";
 for(let j=0;j<5;j++){
-r+=`<td onclick="openQ(${j},${i},this)">${points[i]}</td>`;
+let index=i*5+j;
+r+=`<td onclick="openQ(${j},${i},this,${index})">${points[i]}</td>`;
 }
 r+="</tr>";
 t.innerHTML+=r;
 }
 }
 
-function openQ(cat,idx,cell){
+function openQ(cat,idx,cell,index){
+
+// 🎁 BONUS
+if(prizeCells.includes(index)){
+let bonus=points[idx]*2;
+
+alert("🎁 BONUS +"+bonus);
+
+scores[current]+=bonus;
+
+cell.style.background="gold";
+cell.innerText="🎁";
+cell.onclick=null;
+
+current=(current+1)%4;
+update();
+
+used++;
+if(used===40) showWinner();
+return;
+}
 
 let q=questions[cat][idx];
 
 let box=document.createElement("div");
-box.className="modal";
 currentBox=box;
+box.className="modal";
 
 box.innerHTML="<h2>"+q.q+"</h2>";
 
@@ -178,8 +183,11 @@ btn.className="option";
 btn.innerText=opt;
 
 btn.onclick=()=>{
-if(i===q.a){scores[current]+=points[idx];}
-else{scores[current]-=points[idx];}
+if(i===q.a){
+scores[current]+=points[idx];
+}else{
+scores[current]-=points[idx];
+}
 
 current=(current+1)%4;
 update();
@@ -188,6 +196,9 @@ cell.style.background="gray";
 cell.onclick=null;
 
 document.body.removeChild(box);
+
+used++;
+if(used===40) showWinner();
 };
 
 box.appendChild(btn);
@@ -197,15 +208,24 @@ document.body.appendChild(box);
 }
 
 function update(){
-p1.innerText=scores[0];
-p2.innerText=scores[1];
-p3.innerText=scores[2];
-p4.innerText=scores[3];
+t1.innerText=scores[0];
+t2.innerText=scores[1];
+t3.innerText=scores[2];
+t4.innerText=scores[3];
+}
+
+function showWinner(){
+let max=Math.max(...scores);
+let w=scores.indexOf(max)+1;
+
+win.style.display="block";
+win.innerHTML="🏆 WINNER: TEAM "+w+"<br>Score: "+max;
 }
 
 createBoard();
 update();
 
 </script>
+
 </body>
 </html>
