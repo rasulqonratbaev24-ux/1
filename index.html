@@ -1,23 +1,251 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Jeopardy PRO</title>
+  <title>Jeopardy Ultimate</title>
   <style>
-    body { font-family: Arial; text-align: center; background:#111; color:white; }
-    table { margin:auto; border-collapse: collapse; }
+    body { font-family: Arial; text-align:center; background:#111; color:white; }
+    table { margin:auto; border-collapse:collapse; }
     th, td {
-      width:160px; height:80px; border:4px solid white;
+      width:120px; height:60px;
+      border:2px solid white;
       cursor:pointer;
     }
     th { background:darkred; }
     td { background:blue; }
     td:hover { background:darkblue; }
 
-    .score { margin:10px; }
+    .option {
+      margin:10px;
+      padding:10px;
+      background:#222;
+      border:1px solid white;
+      cursor:pointer;
+    }
+
+    #win {
+      display:none;
+      position:fixed;
+      top:0; left:0;
+      width:100%; height:100%;
+      background:black;
+      color:gold;
+      font-size:40px;
+      padding-top:200px;
+    }
+  </style>
+</head>
+
+<body>
+
+<h1>🎮 Jeopardy Ultimate</h1>
+
+<div>
+P1:<span id="p1">0</span> |
+P2:<span id="p2">0</span> |
+P3:<span id="p3">0</span> |
+P4:<span id="p4">0</span>
+</div>
+
+<div style="width:300px;margin:auto;background:#333;height:20px;">
+  <div id="bar" style="height:100%;width:100%;background:lime;"></div>
+</div>
+<h3>⏱ <span id="timer">40</span></h3>
+
+<table id="board"></table>
+
+<div id="win"></div>
+
+<script>
+
+let scores=[0,0,0,0];
+let current=0;
+let used=0;
+
+let time=40;
+let interval=null;
+let currentBox=null;
+
+let prizeCells=[];
+
+const categories=["Math","Tarix","Geo","IT","Sport"];
+const points=[100,200,300,400,500,600,700,800];
+
+// demo savollar
+const questions = Array.from({length:5},()=>Array.from({length:8},(_,i)=>({
+  q:"Savol "+(i+1),
+  o:["A","B","C","D"],
+  a:Math.floor(Math.random()*4)
+})));
+
+function createBoard(){
+  let t=document.getElementById("board");
+
+  let h="<tr>";
+  categories.forEach(c=>h+="<th>"+c+"</th>");
+  h+="</tr>";
+  t.innerHTML+=h;
+
+  // 🎁 random bonus
+  while(prizeCells.length<4){
+    let r=Math.floor(Math.random()*40);
+    if(!prizeCells.includes(r)) prizeCells.push(r);
+  }
+
+  for(let i=0;i<8;i++){
+    let r="<tr>";
+    for(let j=0;j<5;j++){
+      let index=i*5+j;
+      r+=`<td onclick="openQ(${j},${i},this,${index})">${points[i]}</td>`;
+    }
+    r+="</tr>";
+    t.innerHTML+=r;
+  }
+}
+
+function startTimer(idx){
+  clearInterval(interval);
+  time=40;
+
+  let t=document.getElementById("timer");
+  let bar=document.getElementById("bar");
+
+  interval=setInterval(()=>{
+    time--;
+    t.innerText=time;
+    bar.style.width=(time/40*100)+"%";
+
+    if(time<=0){
+      clearInterval(interval);
+      alert("⏱ Vaqt tugadi!");
+
+      scores[current]-=points[idx];
+      current=(current+1)%4;
+      update();
+
+      if(currentBox) document.body.removeChild(currentBox);
+
+      used++;
+      if(used===40) showWinner();
+    }
+
+  },1000);
+}
+
+function openQ(cat,idx,cell,index){
+
+  let isPrize=prizeCells.includes(index);
+
+  // 🎁 BONUS → SAVOLSIZ
+  if(isPrize){
+    let bonus=points[idx]*2;
+
+    alert("🎁 BONUS! +" + bonus);
+
+    scores[current]+=bonus;
+
+    current=(current+1)%4;
+    update();
+
+    cell.style.background="gold";
+    cell.innerText="🎁";
+    cell.onclick=null;
+
+    used++;
+    if(used===40) showWinner();
+
+    return;
+  }
+
+  let q=questions[cat][idx];
+
+  let box=document.createElement("div");
+  currentBox=box;
+
+  box.style.position="fixed";
+  box.style.top="20%";
+  box.style.left="30%";
+  box.style.width="40%";
+  box.style.background="#222";
+  box.style.padding="20px";
+  box.style.border="2px solid white";
+
+  box.innerHTML=`<h3>${q.q}</h3>`;
+
+  q.o.forEach((opt,i)=>{
+    let btn=document.createElement("div");
+    btn.className="option";
+    btn.innerText=String.fromCharCode(65+i)+") "+opt;
+
+    btn.onclick=()=>{
+      clearInterval(interval);
+
+      if(i===q.a){
+        scores[current]+=points[idx];
+      } else {
+        scores[current]-=points[idx];
+      }
+
+      current=(current+1)%4;
+      update();
+
+      cell.style.background="gray";
+      cell.onclick=null;
+
+      document.body.removeChild(box);
+
+      used++;
+      if(used===40) showWinner();
+    };
+
+    box.appendChild(btn);
+  });
+
+  document.body.appendChild(box);
+  startTimer(idx);
+}
+
+function update(){
+  document.getElementById("p1").innerText=scores[0];
+  document.getElementById("p2").innerText=scores[1];
+  document.getElementById("p3").innerText=scores[2];
+  document.getElementById("p4").innerText=scores[3];
+}
+
+function showWinner(){
+  let max=Math.max(...scores);
+  let w=scores.indexOf(max)+1;
+
+  let win=document.getElementById("win");
+  win.style.display="block";
+  win.innerHTML="🏆 WINNER: PLAYER "+w+"<br>Score: "+max;
+}
+
+createBoard();
+update();
+
+</script>
+
+</body>
+</html>
+<html>
+<head>
+  <title>Jeopardy PRO</title>
+  <style>
+    body { font-family: Arial; text-align: center; background:#111; color:white; }
+    table { margin:auto; border-collapse: collapse; }
+    th, td {
+      width:200px; height:120px; border:20px solid white;
+      cursor:pointer;
+    }
+    th { background:darkred; }
+    td { background:blue; }
+    td:hover { background:darkblue; }
+
+    .score { margin:20px; }
 
     .option {
-      margin:40px; padding:40px;
-      background:#222; border:1px solid white;
+      margin:80px; padding:120px;
+      background:#222; border:8px solid white;
       cursor:pointer;
     }
 
@@ -145,8 +373,8 @@ function openQ(cat,idx,cell,index){
   box.style.left="30%";
   box.style.width="40%";
   box.style.background="#222";
-  box.style.padding="40px";
-  box.style.border="2px solid white";
+  box.style.padding="100px";
+  box.style.border="8px solid white";
 
   box.innerHTML=`<h3>${isPrize?"🎁 BONUS!":""} ${q.q}</h3>`;
 
@@ -175,7 +403,7 @@ function openQ(cat,idx,cell,index){
       document.body.removeChild(box);
 
       used++;
-      if(used===40) showWinner();
+      if(used===80) showWinner();
     };
 
     box.appendChild(btn);
