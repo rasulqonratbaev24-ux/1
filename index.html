@@ -287,6 +287,12 @@ alert("🏆 WINNER TEAM " + w);
 }
 }
 
+/* ✍️ MANUAL EDIT SCORE */
+function edit(i,val){
+scores[i]=Number(val);
+update();
+}
+
 function update(){
 for(let i=0;i<4;i++){
 document.getElementById("s"+i).innerText=scores[i];
