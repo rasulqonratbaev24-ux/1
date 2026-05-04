@@ -9,13 +9,13 @@ body{background:#111;color:white;font-family:Arial;text-align:center;}
 
 .score{display:flex;justify-content:center;gap:10px;margin:10px;flex-wrap:wrap;}
 
-.team{padding:10px;border:2px solid white;border-radius:8px;}
+.team{padding:20px;border:4px solid white;border-radius:8px;}
 
 table{margin:auto;border-collapse:collapse;}
 
 td,th{
-width:110px;height:60px;
-border:2px solid white;
+width:220px;height:120px;
+border:4px solid white;
 cursor:pointer;
 }
 
@@ -27,15 +27,15 @@ position:fixed;
 top:30%;left:50%;
 transform:translate(-50%,-50%);
 background:#222;
-padding:20px;
-border:2px solid white;
+padding:40px;
+border:4px solid white;
 width:60%;
 z-index:999;
 }
 
 .option{
-margin:8px;
-padding:10px;
+margin:16px;
+padding:20px;
 background:#333;
 cursor:pointer;
 }
@@ -49,12 +49,12 @@ top:50%;left:50%;
 transform:translate(-50%,-50%);
 background:gold;
 color:black;
-padding:30px;
-font-size:28px;
-border:3px solid white;
+padding:60px;
+font-size:56px;
+border:6px solid white;
 z-index:9999;
 }
-input{width:60px;text-align:center;}
+input{width:120px;text-align:center;}
 </style>
 </head>
 
@@ -184,10 +184,10 @@ if(bonus.includes(id)){
 
 let type=Math.floor(Math.random()*4);
 
-if(type===0) showBonus("⚡ 2X BONUS");
-if(type===1) showBonus("🔁 SWAP BONUS");
-if(type===2) showBonus("🦹 STEAL BONUS");
-if(type===3) showBonus("💰 +1000 BONUS");
+if(type===0) showBonus("⚡ 2X ");
+if(type===1) showBonus("🔁 SWAP ");
+if(type===2) showBonus("🦹 STEAL ");
+if(type===3) showBonus("💰 +1000 ");
 
 cell.style.background="gold";
 cell.innerText="🎁";
@@ -207,7 +207,7 @@ b.className="option";
 b.innerText=o;
 
 b.onclick=()=>{
-alert(x===qq.a?"✔ TO‘G‘RI":"❌ XATO");
+alert(x===qq.a?"✔ CORRECT":"❌ ERROR");
 cell.style.background="gray";
 cell.onclick=null;
 document.body.removeChild(div);
