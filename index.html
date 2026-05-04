@@ -148,12 +148,12 @@ const q=[
 ]
 ];
 
-let prize=[];
+let prize = [];
 
-/* 🎁 PRIZE RANDOM */
-while(prize.length<4){
-let r=Math.floor(Math.random()*60);
-if(!prize.includes(r)) prize.push(r);
+for(let cat = 0; cat < 4; cat++){
+  let randomRow = Math.floor(Math.random() * 8); // 0–7
+  let id = randomRow * 5 + cat;
+  prize.push(id);
 }
 
 function board(){
