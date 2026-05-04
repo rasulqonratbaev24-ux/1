@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Jeopardy 5x8 MCQ</title>
+  <title>Jeopardy Final</title>
   <style>
     body {
       font-family: Arial;
@@ -16,7 +16,7 @@
     }
 
     th, td {
-      width: 140px;
+      width: 120px;
       height: 60px;
       border: 2px solid white;
       cursor: pointer;
@@ -30,12 +30,38 @@
       margin: 10px;
       font-size: 18px;
     }
+
+    /* 🏆 WIN SCREEN */
+    #winScreen {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      color: gold;
+      font-size: 40px;
+      padding-top: 200px;
+    }
+
+    .option {
+      display: block;
+      margin: 10px;
+      padding: 10px;
+      background: #222;
+      border: 2px solid white;
+      cursor: pointer;
+    }
+
+    .option:hover {
+      background: #444;
+    }
   </style>
 </head>
 
 <body>
 
-<h1>🎮 Jeopardy 5x8 (Variantli)</h1>
+<h1>🎮 Jeopardy PRO</h1>
 
 <div class="score">
   🟢 P1: <span id="p1">0</span> |
@@ -46,18 +72,19 @@
 
 <table id="board"></table>
 
+<!-- 🏆 WIN SCREEN -->
+<div id="winScreen"></div>
+
 <script>
 
 let scores = [0,0,0,0];
 let current = 0;
+let used = 0;
 
-// 5 kategoriya
 const categories = ["Math","Tarix","Geo","IT","Sport"];
 
-// 8 savol darajasi
 const points = [100,200,300,400,500,600,700,800];
 
-// 📌 MCQ savollar (A,B,C,D)
 const questions = [
   [
     {q:"2+2?", o:["3","4","5","6"], a:1},
@@ -70,49 +97,48 @@ const questions = [
     {q:"20/5?", o:["2","3","4","5"], a:2}
   ],
   [
-    {q:"O'zbekiston poytaxti?", o:["Buxoro","Toshkent","Samarqand","Andijon"], a:1},
-    {q:"1991 yil?", o:["urush","mustaqillik","inqilob","davlat"], a:1},
+    {q:"Toshkent?", o:["Buxoro","Toshkent","Xiva","Farg'ona"], a:1},
+    {q:"1991?", o:["urush","mustaqillik","inqilob","davlat"], a:1},
     {q:"Amir Temur?", o:["olim","sarkarda","shoir","dehqon"], a:1},
-    {q:"Karimov?", o:["prezident","shoir","olim","artist"], a:0},
-    {q:"Ikkinchi jahon?", o:["1939","1945","1950","1914"], a:1},
-    {q:"Temur tug'ilgan?", o:["Shahrisabz","Buxoro","Xiva","Farg'ona"], a:0},
-    {q:"O'zbekiston yil?", o:["1990","1991","1992","1993"], a:1},
-    {q:"Bayroq rangi?", o:["ko'k","qizil","yashil","sariq"], a:0}
+    {q:"Prezident?", o:["Karimov","Obama","Putin","Erdogan"], a:0},
+    {q:"1945?", o:["urush","tinchlik","yil","davlat"], a:0},
+    {q:"Bayroq rangi?", o:["ko'k","qizil","yashil","oq"], a:0},
+    {q:"O'zbekiston?", o:["davlat","shahar","qishloq","daryo"], a:0},
+    {q:"Temur?", o:["sarkarda","olim","artist","shoir"], a:0}
   ],
   [
     {q:"Eng katta okean?", o:["Atlantika","Tinch","Hind","Shimoliy"], a:1},
-    {q:"Eng katta qit'a?", o:["Afrika","Osiyo","Yevropa","Avstraliya"], a:1},
-    {q:"Eng uzun daryo?", o:["Nil","Amudaryo","Sirdaryo","Volga"], a:0},
-    {q:"Sovuq materik?", o:["Antarktida","Afrika","Osiyo","Yevropa"], a:0},
-    {q:"Qit'a soni?", o:["5","6","7","8"], a:2},
-    {q:"O'zbekiston dengiz?", o:["yo'q","bor","2 ta","3 ta"], a:0},
-    {q:"Yer shakli?", o:["dumaloq","kvadrat","tekis","uchburchak"], a:0},
-    {q:"Yer nechta?", o:["1","2","3","4"], a:0}
+    {q:"Qit'a?", o:["5","6","7","8"], a:2},
+    {q:"Nil?", o:["daryo","tog'","ko'l","shahar"], a:0},
+    {q:"Yer?", o:["dumaloq","tekis","kvadrat","uchburchak"], a:0},
+    {q:"Sovuq?", o:["Antarktida","Afrika","Osiyo","Yevropa"], a:0},
+    {q:"Dunyo?", o:["planeta","yulduz","oy","quyosh"], a:0},
+    {q:"Qit'a soni?", o:["7","5","6","4"], a:0},
+    {q:"Daryo?", o:["Nil","Amu","Sirdaryo","Volga"], a:0}
   ],
   [
     {q:"Apple?", o:["olma","banan","uzum","anor"], a:0},
-    {q:"Book?", o:["kitob","daftar","qalam","stol"], a:0},
+    {q:"Book?", o:["kitob","qalam","daftar","stol"], a:0},
     {q:"Hello?", o:["salom","xayr","rahmat","kechirasiz"], a:0},
     {q:"Go past?", o:["went","goes","gone","going"], a:0},
-    {q:"I am?", o:["men","sen","u","biz"], a:0},
-    {q:"Dog?", o:["it","mushuk","qush","ot"], a:0},
-    {q:"Water?", o:["suv","olov","tuproq","havo"], a:0},
-    {q:"Sun?", o:["quyosh","oy","yulduz","yer"], a:0}
+    {q:"Dog?", o:["it","mushuk","ot","qush"], a:0},
+    {q:"Sun?", o:["quyosh","oy","yulduz","yer"], a:0},
+    {q:"Water?", o:["suv","olov","havo","tuproq"], a:0},
+    {q:"Ice?", o:["muz","suv","olov","tosh"], a:0}
   ],
   [
-    {q:"Futbolchilar?", o:["10","11","12","9"], a:1},
-    {q:"Messi?", o:["Argentina","Braziliya","Portugaliya","Fransiya"], a:0},
+    {q:"Futbol?", o:["11","10","9","12"], a:0},
+    {q:"Messi?", o:["Argentina","Braziliya","Fransiya","Portugal"], a:0},
     {q:"Ronaldo?", o:["Portugal","Ispaniya","Italiya","Germaniya"], a:0},
     {q:"NBA?", o:["basketbol","futbol","tennis","hokkey"], a:0},
-    {q:"Olimpiada?", o:["4 yilda","2 yilda","1 yilda","5 yilda"], a:0},
-    {q:"Bola sporti?", o:["futbol","kitob","rassom","musiqa"], a:0},
-    {q:"Eng tez?", o:["gepard","it","ot","tulki"], a:0},
-    {q:"Sport turi?", o:["hamma","hech","yo'q","bilmadim"], a:0}
+    {q:"Olimpiada?", o:["4","2","1","5"], a:0},
+    {q:"Gepard?", o:["tez","sekin","katta","kichik"], a:0},
+    {q:"Sport?", o:["harakat","uyqu","ovqat","kitob"], a:0},
+    {q:"O'yin?", o:["fun","work","sleep","eat"], a:0}
   ]
 ];
 
-// 📌 board
-function create(){
+function createBoard(){
   let t = document.getElementById("board");
 
   let h = "<tr>";
@@ -125,40 +151,58 @@ function create(){
   for(let i=0;i<8;i++){
     let r = "<tr>";
     for(let j=0;j<5;j++){
-      r += `<td onclick="ask(${j},${i},this)">${points[i]}</td>`;
+      r += `<td onclick="openQ(${j},${i},this)">${points[i]}</td>`;
     }
     r += "</tr>";
     t.innerHTML += r;
   }
 }
 
-// 📌 savol
-function ask(cat, idx, cell){
+function openQ(cat, idx, cell){
 
   let q = questions[cat][idx];
-  let text = q.q + "\n\n";
 
-  for(let i=0;i<4;i++){
-    text += String.fromCharCode(65+i) + ") " + q.o[i] + "\n";
-  }
+  let box = document.createElement("div");
+  box.style.position = "fixed";
+  box.style.top = "20%";
+  box.style.left = "30%";
+  box.style.width = "40%";
+  box.style.background = "#222";
+  box.style.padding = "20px";
+  box.style.border = "2px solid white";
 
-  let ans = prompt("Player " + (current+1) + "\n\n" + text);
+  box.innerHTML = `<h3>${q.q}</h3>`;
 
-  let correct = q.a;
+  q.o.forEach((opt, i)=>{
+    let btn = document.createElement("div");
+    btn.className = "option";
+    btn.innerText = String.fromCharCode(65+i) + ") " + opt;
 
-  if(ans && ans.toUpperCase() == String.fromCharCode(65+correct)){
-    alert("To'g'ri!");
-    scores[current] += points[idx];
-  } else {
-    alert("Noto'g'ri!");
-    scores[current] -= points[idx];
-  }
+    btn.onclick = ()=>{
+      if(i === q.a){
+        scores[current] += points[idx];
+      } else {
+        scores[current] -= points[idx];
+      }
 
-  cell.style.background = "gray";
-  cell.onclick = null;
+      current = (current+1)%4;
+      update();
 
-  current = (current + 1) % 4;
-  update();
+      cell.style.background="gray";
+      cell.onclick=null;
+
+      document.body.removeChild(box);
+
+      used++;
+      if(used === 40){
+        showWinner();
+      }
+    };
+
+    box.appendChild(btn);
+  });
+
+  document.body.appendChild(box);
 }
 
 function update(){
@@ -168,7 +212,16 @@ function update(){
   document.getElementById("p4").innerText = scores[3];
 }
 
-create();
+function showWinner(){
+  let max = Math.max(...scores);
+  let winner = scores.indexOf(max) + 1;
+
+  let win = document.getElementById("winScreen");
+  win.style.display = "block";
+  win.innerHTML = "🏆 WINNER: PLAYER " + winner + "<br><br>Score: " + max;
+}
+
+createBoard();
 update();
 
 </script>
